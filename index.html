@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Susun Tangga Satuan Data</title>
+<style>
+  :root{
+    --navy:#123A67;
+    --blue:#2D7FF9;
+    --sky:#EAF7FF;
+    --mint:#CFF5D8;
+    --green:#29B765;
+    --yellow:#FFE06A;
+    --orange:#FF9E4A;
+    --coral:#FF6B6B;
+    --pink:#FFD2DE;
+    --purple:#B99CFF;
+    --lav:#E9E0FF;
+    --ink:#17324D;
+    --white:#FFFFFF;
+    --shadow:0 16px 36px rgba(33,79,120,.16);
+  }
+
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    width:100%;
+    min-height:100%;
+    font-family:"Trebuchet MS","Segoe UI",Arial,sans-serif;
+    color:var(--ink);
+    background:#dff4ff;
+    overflow-x:hidden;
+  }
+
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 8% 8%, rgba(255,255,255,.95) 0 90px, transparent 92px),
+      radial-gradient(circle at 92% 12%, rgba(255,255,255,.9) 0 110px, transparent 112px),
+      linear-gradient(180deg,#ccefff 0%,#f8fdff 60%,#d9f4e2 100%);
+  }
+
+  .app{
+    width:min(1600px,100%);
+    margin:0 auto;
+    min-height:100vh;
+    padding:18px 22px 22px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    background:rgba(255,255,255,.88);
+    border:2px solid rgba(255,255,255,.95);
+    box-shadow:var(--shadow);
+    border-radius:28px;
+    padding:15px 20px;
+  }
+
+  .title-wrap{display:flex;align-items:center;gap:16px;min-width:0}
+  .logo{
+    width:68px;height:68px;border-radius:20px;
+    display:grid;place-items:center;
+    background:linear-gradient(145deg,#75d8ff,#2b7ff5);
+    box-shadow:0 10px 22px rgba(45,127,249,.28);
+    font-size:36px;
+  }
+  h1{
+    margin:0;
+    font-size:clamp(30px,3vw,52px);
+    line-height:1;
+    color:var(--navy);
+    letter-spacing:-1px;
+  }
+  .subtitle{
+    margin-top:7px;
+    font-size:clamp(15px,1.35vw,22px);
+    font-weight:700;
+    color:#3573a8;
+  }
+
+  .tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  button{
+    border:0;
+    border-radius:16px;
+    padding:12px 16px;
+    font-weight:900;
+    font-size:15px;
+    cursor:pointer;
+    color:var(--navy);
+    background:white;
+    box-shadow:0 7px 18px rgba(33,79,120,.12);
+    transition:.15s transform,.15s filter;
+  }
+  button:hover{transform:translateY(-2px);filter:brightness(1.02)}
+  button:active{transform:translateY(0)}
+  .primary{background:linear-gradient(135deg,#2d7ff9,#5aa7ff);color:white}
+  .success{background:linear-gradient(135deg,#29b765,#62d48e);color:white}
+  .danger{background:linear-gradient(135deg,#ff6b6b,#ff9b74);color:white}
+  .soft{background:#f2f8fd}
+  .yellow{background:linear-gradient(135deg,#ffd95a,#ffbd4a);color:#593c00}
+
+  .main{
+    margin-top:16px;
+    background:rgba(255,255,255,.93);
+    border-radius:30px;
+    box-shadow:var(--shadow);
+    border:2px solid rgba(255,255,255,.95);
+    padding:18px;
+  }
+
+  .instruction{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    align-items:center;
+    background:linear-gradient(135deg,#e9f8ff,#f6fcff);
+    border:2px solid #c9ebff;
+    border-radius:22px;
+    padding:13px 18px;
+  }
+  .instruction strong{
+    font-size:clamp(22px,2vw,31px);
+    color:var(--navy);
+  }
+  .hint{
+    font-size:clamp(14px,1.2vw,18px);
+    font-weight:800;
+    color:#5680a2;
+    text-align:right;
+  }
+
+  .cards-zone{
+    margin-top:14px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:14px;
+    min-height:110px;
+    padding:14px;
+    border-radius:24px;
+    background:#f9fcff;
+    border:2px dashed #b9dff5;
+  }
+
+  .card{
+    width:164px;
+    height:78px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:18px;
+    font-size:26px;
+    font-weight:1000;
+    color:var(--navy);
+    user-select:none;
+    touch-action:none;
+    cursor:grab;
+    border:3px solid rgba(255,255,255,.95);
+    box-shadow:0 8px 16px rgba(33,79,120,.16);
+    position:relative;
+    transition:transform .14s, box-shadow .14s;
+  }
+  .card:hover{transform:translateY(-3px)}
+  .card.dragging{
+    cursor:grabbing;
+    transform:scale(1.05) rotate(-2deg);
+    box-shadow:0 18px 36px rgba(33,79,120,.28);
+    z-index:1000;
+    pointer-events:none;
+  }
+  .card.selected{outline:5px solid #ffca32;transform:scale(1.04)}
+  .card[data-unit="bit"]{background:linear-gradient(135deg,#ffb7c6,#ff7a88)}
+  .card[data-unit="Byte"]{background:linear-gradient(135deg,#bfeaff,#74c9ff)}
+  .card[data-unit="KB"]{background:linear-gradient(135deg,#d9f8d4,#8ce6a3)}
+  .card[data-unit="MB"]{background:linear-gradient(135deg,#fff2a8,#ffd95b)}
+  .card[data-unit="GB"]{background:linear-gradient(135deg,#e2d7ff,#af91ff)}
+  .card[data-unit="TB"]{background:linear-gradient(135deg,#ffd7df,#ff97b0)}
+
+  .stair-wrap{
+    position:relative;
+    height:min(54vh,590px);
+    min-height:430px;
+    margin-top:14px;
+    border-radius:28px;
+    background:
+      radial-gradient(circle at 88% 12%,rgba(255,230,106,.32),transparent 28%),
+      linear-gradient(180deg,#ffffff,#f4fbff);
+    border:2px solid #d4ebf8;
+    overflow:hidden;
+  }
+
+  .size-label{
+    position:absolute;
+    font-weight:1000;
+    font-size:20px;
+    color:var(--navy);
+    padding:8px 13px;
+    border-radius:15px;
+    background:#fff4b8;
+    z-index:2;
+  }
+  .small{left:28px;bottom:22px}
+  .big{right:28px;top:22px}
+
+  .guide-line{
+    position:absolute;
+    left:8%;
+    right:8%;
+    top:52%;
+    height:10px;
+    border-radius:10px;
+    background:linear-gradient(90deg,#69b9ff,#2d7ff9);
+    transform:rotate(-19deg);
+    opacity:.42;
+  }
+  .guide-line:after{
+    content:"";
+    position:absolute;
+    right:-8px;top:-8px;
+    border-left:24px solid #2d7ff9;
+    border-top:13px solid transparent;
+    border-bottom:13px solid transparent;
+  }
+
+  .slot{
+    position:absolute;
+    width:180px;
+    height:94px;
+    border-radius:22px;
+    border:4px dashed #6db7e9;
+    background:rgba(255,255,255,.95);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    font-weight:1000;
+    color:#8aa7bb;
+    transition:.15s background,.15s border,.15s transform;
+  }
+  .slot.hover{
+    background:#fff8c5;
+    border-color:#ffbc2f;
+    transform:scale(1.04);
+  }
+  .slot.correct{border-style:solid;border-color:#2dbd6e;background:#eaffef}
+  .slot.wrong{border-style:solid;border-color:#ff6b6b;background:#fff0f0;animation:shake .25s linear 2}
+  .slot .card{
+    width:100%;
+    height:100%;
+    border-radius:18px;
+    box-shadow:none;
+    border:0;
+    font-size:27px;
+  }
+
+  /* Posisi tangga dibuat lebih simetris dan rapi */
+  .s1{left:7%; bottom:58px}
+  .s2{left:22%; bottom:118px}
+  .s3{left:37%; bottom:178px}
+  .s4{left:52%; bottom:238px}
+  .s5{left:67%; bottom:298px}
+  .s6{left:82%; bottom:358px}
+
+  @keyframes shake{
+    0%{transform:translateX(0)}
+    25%{transform:translateX(-6px)}
+    50%{transform:translateX(6px)}
+    75%{transform:translateX(-4px)}
+    100%{transform:translateX(0)}
+  }
+
+  .actions{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+
+  .feedback{
+    margin-top:12px;
+    min-height:62px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px 16px;
+    border-radius:20px;
+    text-align:center;
+    font-size:20px;
+    font-weight:1000;
+    background:#f3f8fc;
+    color:var(--navy);
+    border:2px solid #d7e9f5;
+  }
+  .feedback.ok{background:#e8fff0;border-color:#8de7aa;color:#146e3b}
+  .feedback.bad{background:#fff1f1;border-color:#ffb1b1;color:#a63131}
+
+  .legend{
+    text-align:center;
+    margin-top:9px;
+    font-size:14px;
+    font-weight:800;
+    color:#5d7f9b;
+  }
+
+  #confetti{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+  }
+
+  .modal{
+    position:fixed;
+    inset:0;
+    background:rgba(12,35,55,.56);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:3000;
+  }
+  .modal.show{display:flex}
+  .modal-card{
+    width:min(680px,95vw);
+    background:white;
+    border-radius:30px;
+    padding:26px;
+    box-shadow:0 30px 80px rgba(0,0,0,.28);
+    text-align:center;
+  }
+  .modal-card h2{margin:0 0 12px;font-size:36px;color:var(--navy)}
+  .answer-row{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin:18px 0;
+  }
+  .answer-chip{
+    min-width:80px;
+    padding:13px 16px;
+    border-radius:16px;
+    font-weight:1000;
+    color:var(--navy);
+  }
+
+  .footer-note{
+    text-align:center;
+    margin-top:10px;
+    font-size:13px;
+    font-weight:700;
+    color:#5f829e;
+  }
+
+  @media(max-width:1050px){
+    .topbar{align-items:flex-start;flex-direction:column}
+    .tools{justify-content:flex-start}
+    .stair-wrap{height:560px}
+    .slot{width:150px;height:82px}
+    .s1{left:3%;bottom:55px}
+    .s2{left:19%;bottom:115px}
+    .s3{left:35%;bottom:175px}
+    .s4{left:51%;bottom:235px}
+    .s5{left:67%;bottom:295px}
+    .s6{left:83%;bottom:355px;transform:translateX(-20%)}
+  }
+
+  @media(max-width:720px){
+    .app{padding:10px}
+    .card{width:126px;height:64px;font-size:20px}
+    .stair-wrap{height:510px}
+    .slot{width:122px;height:70px}
+    .s1{left:2%;bottom:42px}
+    .s2{left:18%;bottom:98px}
+    .s3{left:34%;bottom:154px}
+    .s4{left:50%;bottom:210px}
+    .s5{left:66%;bottom:266px}
+    .s6{left:82%;bottom:322px}
+  }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<div class="app">
+  <header class="topbar">
+    <div class="title-wrap">
+      <div class="logo">💾</div>
+      <div>
+        <h1>Susun Tangga Satuan Data</h1>
+        <div class="subtitle">Diskusikan bersama kelompok, lalu satu perwakilan maju untuk menyusun.</div>
+      </div>
+    </div>
+    <div class="tools">
+      <button id="fullscreenBtn" class="soft">⛶ Layar Penuh</button>
+      <button id="shuffleBtn" class="yellow">🔀 Acak Kartu</button>
+      <button id="resetBtn" class="danger">↻ Ulangi</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="instruction">
+      <div>
+        <strong>Seret kartu ke tangga dari paling kecil sampai paling besar!</strong><br>
+        <span class="hint">Alternatif: klik kartu, lalu klik kotak tangga.</span>
+      </div>
+      <div class="hint">bit • Byte • KB • MB • GB • TB</div>
+    </div>
+
+    <div class="cards-zone" id="cardsZone"></div>
+
+    <div class="stair-wrap">
+      <div class="guide-line"></div>
+      <div class="size-label small">PALING KECIL</div>
+      <div class="size-label big">PALING BESAR</div>
+
+      <div class="slot s1" data-index="0">1</div>
+      <div class="slot s2" data-index="1">2</div>
+      <div class="slot s3" data-index="2">3</div>
+      <div class="slot s4" data-index="3">4</div>
+      <div class="slot s5" data-index="4">5</div>
+      <div class="slot s6" data-index="5">6</div>
+    </div>
+
+    <div class="actions">
+      <button class="success" id="checkBtn">✓ Periksa Jawaban</button>
+      <button class="soft" id="clearBtn">🧹 Kosongkan Tangga</button>
+      <button class="soft" id="answerBtn">👀 Tampilkan Jawaban</button>
+    </div>
+
+    <div class="feedback" id="feedback">Ayo diskusikan dulu, lalu susun kartu dengan teliti!</div>
+    <div class="legend">Ketepatan lebih penting daripada kecepatan. • bit ↔ Byte memiliki hubungan khusus: 8 bit = 1 Byte.</div>
+  </main>
+
+  <div class="footer-note">Media Informatika Kelas IX • Materi Satuan Data • Cocok digunakan melalui infokus/proyektor</div>
+</div>
+
+<div class="modal" id="answerModal">
+  <div class="modal-card">
+    <h2>Urutan yang Benar</h2>
+    <div>Mulai dari satuan paling kecil sampai paling besar:</div>
+    <div class="answer-row">
+      <div class="answer-chip" style="background:#ffb7c6">bit</div>
+      <div class="answer-chip" style="background:#bfeaff">Byte</div>
+      <div class="answer-chip" style="background:#d9f8d4">KB</div>
+      <div class="answer-chip" style="background:#fff2a8">MB</div>
+      <div class="answer-chip" style="background:#e2d7ff">GB</div>
+      <div class="answer-chip" style="background:#ffd7df">TB</div>
+    </div>
+    <button class="primary" id="closeModal">Tutup</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const correctOrder = ["bit","Byte","KB","MB","GB","TB"];
+  let selectedCard = null;
+  let dragState = null;
+
+  const cardsZone = document.getElementById('cardsZone');
+  const slots = [...document.querySelectorAll('.slot')];
+  const feedback = document.getElementById('feedback');
+
+  function makeCard(unit){
+    const c=document.createElement('div');
+    c.className='card';
+    c.dataset.unit=unit;
+    c.textContent=unit;
+    c.tabIndex=0;
+    c.addEventListener('pointerdown', onPointerDown);
+    c.addEventListener('click', onCardClick);
+    c.addEventListener('keydown', e=>{
+      if(e.key==='Enter' || e.key===' '){
+        e.preventDefault(); onCardClick({currentTarget:c});
+      }
+    });
+    return c;
+  }
+
+  function initCards(shuffle=true){
+    const units=[...correctOrder];
+    if(shuffle) shuffleArray(units);
+    cardsZone.innerHTML='';
+    slots.forEach((s,i)=>{
+      s.innerHTML=String(i+1);
+      s.classList.remove('correct','wrong','hover');
+    });
+    units.forEach(u=>cardsZone.appendChild(makeCard(u)));
+    selectedCard=null;
+    setFeedback('Ayo diskusikan dulu, lalu susun kartu dengan teliti!');
+  }
+
+  function shuffleArray(a){
+    for(let i=a.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+  }
+
+  function onCardClick(e){
+    const c=e.currentTarget;
+    if(dragState && dragState.moved) return;
+    document.querySelectorAll('.card.selected').forEach(x=>x.classList.remove('selected'));
+    if(selectedCard===c){ selectedCard=null; return; }
+    selectedCard=c;
+    c.classList.add('selected');
+    setFeedback(`Kartu "${c.dataset.unit}" dipilih. Sekarang klik kotak tangga tujuan.`);
+  }
+
+  slots.forEach(slot=>{
+    slot.addEventListener('click',()=>{
+      if(!selectedCard) return;
+      placeCard(selectedCard, slot);
+      selectedCard=null;
+      document.querySelectorAll('.card.selected').forEach(x=>x.classList.remove('selected'));
+    });
+  });
+
+  function onPointerDown(e){
+    if(e.button!==undefined && e.button!==0) return;
+    const c=e.currentTarget;
+    const rect=c.getBoundingClientRect();
+    dragState={
+      card:c,
+      startX:e.clientX,
+      startY:e.clientY,
+      offsetX:e.clientX-rect.left,
+      offsetY:e.clientY-rect.top,
+      originalParent:c.parentElement,
+      originalNext:c.nextSibling,
+      moved:false
+    };
+    c.setPointerCapture?.(e.pointerId);
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup', onPointerUp, {once:true});
+  }
+
+  function onPointerMove(e){
+    if(!dragState) return;
+    const dx=Math.abs(e.clientX-dragState.startX);
+    const dy=Math.abs(e.clientY-dragState.startY);
+    if(!dragState.moved && dx+dy<8) return;
+    dragState.moved=true;
+    const c=dragState.card;
+    if(!c.classList.contains('dragging')){
+      const r=c.getBoundingClientRect();
+      c.style.width=r.width+'px';
+      c.style.height=r.height+'px';
+      c.style.position='fixed';
+      c.style.left=(e.clientX-dragState.offsetX)+'px';
+      c.style.top=(e.clientY-dragState.offsetY)+'px';
+      document.body.appendChild(c);
+      c.classList.add('dragging');
+    } else {
+      c.style.left=(e.clientX-dragState.offsetX)+'px';
+      c.style.top=(e.clientY-dragState.offsetY)+'px';
+    }
+    slots.forEach(s=>s.classList.remove('hover'));
+    const el=document.elementFromPoint(e.clientX,e.clientY);
+    const slot=el?.closest?.('.slot');
+    if(slot) slot.classList.add('hover');
+  }
+
+  function onPointerUp(e){
+    document.removeEventListener('pointermove', onPointerMove);
+    if(!dragState) return;
+    const ds=dragState;
+    dragState=null;
+    slots.forEach(s=>s.classList.remove('hover'));
+    if(!ds.moved) return;
+
+    const el=document.elementFromPoint(e.clientX,e.clientY);
+    const slot=el?.closest?.('.slot');
+    const c=ds.card;
+    c.classList.remove('dragging');
+    c.removeAttribute('style');
+
+    if(slot){
+      placeCard(c,slot);
+    }else{
+      if(ds.originalNext) ds.originalParent.insertBefore(c, ds.originalNext);
+      else ds.originalParent.appendChild(c);
+    }
+  }
+
+  function placeCard(card,slot){
+    const existing=slot.querySelector('.card');
+    if(existing && existing!==card) cardsZone.appendChild(existing);
+    slot.innerHTML='';
+    slot.appendChild(card);
+    slot.classList.remove('correct','wrong');
+    setFeedback(`"${card.dataset.unit}" ditempatkan pada tangga ${Number(slot.dataset.index)+1}.`);
+  }
+
+  function clearStairs(){
+    slots.forEach((s,i)=>{
+      const c=s.querySelector('.card');
+      if(c) cardsZone.appendChild(c);
+      s.innerHTML=String(i+1);
+      s.classList.remove('correct','wrong');
+    });
+    setFeedback('Tangga dikosongkan. Silakan susun kembali.');
+  }
+
+  function allPlaced(){
+    return slots.every(s=>s.querySelector('.card'));
+  }
+
+  function checkAnswer(){
+    if(!allPlaced()){
+      setFeedback('Masih ada kotak yang kosong. Lengkapi keenam tangga dulu!', false);
+      return;
+    }
+    let right=0;
+    slots.forEach((s,i)=>{
+      const u=s.querySelector('.card')?.dataset.unit;
+      const ok=u===correctOrder[i];
+      s.classList.toggle('correct',ok);
+      s.classList.toggle('wrong',!ok);
+      if(ok) right++;
+    });
+
+    if(right===6){
+      setFeedback('🎉 Tepat! Urutan satuan data sudah benar.', true);
+      confettiBurst();
+      successBeep();
+    }else{
+      setFeedback(`Belum tepat. ${right} dari 6 posisi sudah benar. Periksa lagi posisi yang berwarna merah.`, false);
+      errorBeep();
+    }
+  }
+
+  function setFeedback(text, ok=null){
+    feedback.textContent=text;
+    feedback.className='feedback'+(ok===true?' ok':ok===false?' bad':'');
+  }
+
+  let audioCtx;
+  function tone(freq,dur,type='sine',gain=.08){
+    try{
+      audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.type=type;o.frequency.value=freq;g.gain.value=gain;
+      o.connect(g);g.connect(audioCtx.destination);
+      o.start();g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);
+      o.stop(audioCtx.currentTime+dur);
+    }catch(e){}
+  }
+  function successBeep(){ tone(660,.18,'sine',.12); setTimeout(()=>tone(880,.23,'sine',.1),150); }
+  function errorBeep(){ tone(190,.22,'square',.06); }
+
+  const canvas=document.getElementById('confetti'), ctx=canvas.getContext('2d');
+  let pieces=[], animId=null;
+  function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight}
+  addEventListener('resize',resizeCanvas);resizeCanvas();
+  function confettiBurst(){
+    const colors=['#ff6b6b','#2d7ff9','#29b765','#ffd95a','#b99cff','#ff9e4a'];
+    pieces=Array.from({length:120},()=>({
+      x:innerWidth/2+(Math.random()-.5)*240,
+      y:innerHeight*.22,
+      vx:(Math.random()-.5)*8,
+      vy:Math.random()*-6-3,
+      g:.13+Math.random()*.07,
+      r:4+Math.random()*5,
+      rot:Math.random()*Math.PI,
+      vr:(Math.random()-.5)*.22,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      life:140+Math.random()*70
+    }));
+    cancelAnimationFrame(animId);
+    animateConfetti();
+  }
+  function animateConfetti(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.rot+=p.vr;p.life--;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+      ctx.fillStyle=p.color;ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
+      ctx.restore();
+    });
+    pieces=pieces.filter(p=>p.life>0 && p.y<innerHeight+40);
+    if(pieces.length) animId=requestAnimationFrame(animateConfetti);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+
+  document.getElementById('shuffleBtn').onclick=()=>initCards(true);
+  document.getElementById('resetBtn').onclick=()=>initCards(true);
+  document.getElementById('clearBtn').onclick=clearStairs;
+  document.getElementById('checkBtn').onclick=checkAnswer;
+  document.getElementById('answerBtn').onclick=()=>document.getElementById('answerModal').classList.add('show');
+  document.getElementById('closeModal').onclick=()=>document.getElementById('answerModal').classList.remove('show');
+  document.getElementById('answerModal').onclick=e=>{
+    if(e.target.id==='answerModal') e.currentTarget.classList.remove('show');
+  };
+  document.getElementById('fullscreenBtn').onclick=()=>{
+    if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  };
+
+  initCards(true);
+})();
+</script>
+</body>
+</html>
